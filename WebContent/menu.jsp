@@ -9,6 +9,9 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 <style>
 ul {
  margin: 0;
@@ -53,7 +56,6 @@ out.println(name);
 %>
 </h2>
 <%
-//Connect to database postgresql
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
 		
@@ -61,6 +63,32 @@ Connection conn=null;
 		String user ="postgres";
 		String password = "geoserver";
 		conn= DriverManager.getConnection(url,user,password);
+		PreparedStatement pst2;
+		String sql2 = "SELECT * FROM public.alldept "; // Select districts from master table postgresql
+		pst2= conn.prepareStatement(sql2);
+		ResultSet rs2= pst2.executeQuery();
+		
+%>
+<button type="button" class="btn btn-warning" onclick="add()">Add</button>
+  <button type="button" class="btn btn-danger" onclick="del()">Delete</button>
+  <div class="container"id="adddept" style="visibility:'hidden';">
+                                          
+  <div class="dropdown" >
+    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Departments
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" id="dropselect">
+    
+	<%while(rs2.next()){%>
+		 <li id="<%rs2.getString(1);%>" ><a href="#"><%out.println(rs2.getString(2));
+        %></a></li>
+	<% }%>
+     
+    </ul>
+  </div>
+</div>
+<%
+//Connect to database postgresql
+
 	PreparedStatement pst;
 	String sql = "SELECT * FROM public.district_x "; // Select districts from master table postgresql
 	pst= conn.prepareStatement(sql);
@@ -71,7 +99,7 @@ Connection conn=null;
 	%> 
 <ul>
 <%while(rs.next()){%>
-        <li id="<%rs.getString(1);%>"><a href="#"><%out.println(rs.getString(1));
+        <li id="<%rs.getString(2);%>"><a href="#"><%out.println(rs.getString(2));
         	temp=rs.getString(1);
         %></a>
         <ul id='submenu'>
@@ -105,7 +133,23 @@ map.addLayer(wms);
 map.zoomToMaxExtent();
 function myFunction() {
   document.getElementById("map").style.visibility = 'visible';
+  document.getElementById("adddept").style.visibility = 'hidden';
 }
+function add(){
+	document.getElementById("map").style.visibility = 'hidden';
+	document.getElementById("adddept").style.visibility = 'visible';
+}
+function del(){
+	document.getElementById("map").style.visibility = 'hidden';
+	document.getElementById("adddept").style.visibility = 'visible';
+}
+$("#dropselect li").click(function() {
+	   var v=$(this).text(); // get text contents of clicked li
+	   if (window.confirm("You selected department: " + v +"Do you want to add it to menu?")) { 
+			  alert("ok");
+			}
+	  
+	});
 </script>
 </body>
 </html>
