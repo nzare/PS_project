@@ -56,41 +56,38 @@ out.println(name);
 %>
 </h2>
 <%
+
+//Connect to database postgresql
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
 		
 		String url = "jdbc:postgresql://localhost:5432/CMS";
 		String user ="postgres";
 		String password = "geoserver";
-		conn= DriverManager.getConnection(url,user,password);
+		conn= DriverManager.getConnection(url,user,password); 
 		PreparedStatement pst2;
 		String sql2 = "SELECT * FROM public.alldept "; // Select districts from master table postgresql
 		pst2= conn.prepareStatement(sql2);
 		ResultSet rs2= pst2.executeQuery();
-		
-%>
-<button type="button" class="btn btn-warning" onclick="add()">Add</button>
-  <button type="button" class="btn btn-danger" onclick="del()">Delete</button>
-  <div class="container"id="adddept" style="visibility:'hidden';">
-                                          
-  <div class="dropdown" >
-    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Departments
-    <span class="caret"></span></button>
-    <ul class="dropdown-menu" id="dropselect">
-    
-	<%while(rs2.next()){%>
-		 <li id="<%rs2.getString(1);%>" ><a href="#"><%out.println(rs2.getString(2));
-        %></a></li>
-	<% }%>
-     
-    </ul>
-  </div>
-</div>
-<%
-//Connect to database postgresql
+		%>
+		<div class="container"id="adddept" style="visibility:hidden;">
 
+		  <div class="dropdown" >
+		    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Departments
+		    <span class="caret"></span></button>
+		    <ul class="dropdown-menu" id="dropselect">
+
+			<%while(rs2.next()){%>
+				 <li id="<%rs2.getString(1);%>" ><a href="#"><%out.println(rs2.getString(2));
+		        %></a></li>
+			<% }%>
+
+		    </ul>
+		  </div>
+		</div>
+		<% 
 	PreparedStatement pst;
-	String sql = "SELECT * FROM public.district_x "; // Select districts from master table postgresql
+	String sql = "SELECT * FROM public.district_x "; // Select departments which are to be displayed in the menu
 	pst= conn.prepareStatement(sql);
 	ResultSet rs= pst.executeQuery();
 	ResultSetMetaData meta = rs.getMetaData();
@@ -101,28 +98,31 @@ Connection conn=null;
 <%while(rs.next()){%>
         <li id="<%rs.getString(2);%>"><a href="#"><%out.println(rs.getString(2));
         	temp=rs.getString(1);
+        	String sql1 = "SELECT * FROM public."+temp; // Select sub-departments table
+            PreparedStatement pst1;
+        	pst1= conn.prepareStatement(sql1);
+        	ResultSet rs1= pst1.executeQuery(); 
         %></a>
         <ul id='submenu'>
         <%
-        String sql1 = "SELECT * FROM public." + temp; // Select department table
-        PreparedStatement pst1;
-    	pst1= conn.prepareStatement(sql1);
-    	ResultSet rs1= pst1.executeQuery();  //Select all sub-departments
+         //Select all sub-departments
     	
         while(rs1.next()){%>
         	<li id="<%rs1.getString(1);%>" onclick="myFunction()"><a href="#"><%out.println(rs1.getString(1));%></a></li>
         <%}
         %>   
-        
+
         </ul>
-        
-        
+
+
         </li>
 
            <%} %>
 
     </ul>
-    
+    <button type="button" class="btn btn-warning" onclick="add()">Add</button>
+  <button type="button" class="btn btn-danger" onclick="del()">Delete</button>
+
     <div style="width:50%; height:50%; visibility: hidden;" id="map" >
     </div>
 <script defer="defer" type="text/javascript">
@@ -133,7 +133,6 @@ map.addLayer(wms);
 map.zoomToMaxExtent();
 function myFunction() {
   document.getElementById("map").style.visibility = 'visible';
-  document.getElementById("adddept").style.visibility = 'hidden';
 }
 function add(){
 	document.getElementById("map").style.visibility = 'hidden';
@@ -143,13 +142,6 @@ function del(){
 	document.getElementById("map").style.visibility = 'hidden';
 	document.getElementById("adddept").style.visibility = 'visible';
 }
-$("#dropselect li").click(function() {
-	   var v=$(this).text(); // get text contents of clicked li
-	   if (window.confirm("You selected department: " + v +"Do you want to add it to menu?")) { 
-			  alert("ok");
-			}
-	  
-	});
 </script>
 </body>
-</html>
+</html> 
