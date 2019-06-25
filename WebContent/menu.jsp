@@ -154,6 +154,7 @@ Connection conn=null;
 	ResultSet rs= pst.executeQuery();
 	ResultSetMetaData meta = rs.getMetaData();
 	String temp;
+	String temp1;
 	%> 
 <ul>
 <%while(rs.next()){%>
@@ -164,25 +165,28 @@ Connection conn=null;
         	pst1= conn.prepareStatement(sql1);
         	ResultSet rs1= pst1.executeQuery(); 
         %></a>
+        
         <ul id='submenu'>
         <%
          //Select all sub-departments
     	
-        while(rs1.next()){%>
-        	<li id="<%rs1.getString(1);%>" onclick="myFunction()"><a href="#"><%out.println(rs1.getString(2));%></a></li>
+        while(rs1.next()){
+        	temp1=rs1.getString(1);
+        %>
+        	<li value="<%=temp1%>"><a href="#"><%out.println(rs1.getString(2));%></a></li>
         <%}
         %>   
 
         </ul>
-
+  	
+    
 
         </li>
 
            <%} %>
 
     </ul>
-    
-    
+  
     <!-- buttons for addition and deletion option -->
     
     <button type="button" class="btn btn-warning" onclick="add()">Add</button>
@@ -196,18 +200,25 @@ Connection conn=null;
   
 <script defer="defer" type="text/javascript">
 // Display map from geoserver using open layers
-var map = new OpenLayers.Map('map');
-var wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
-    "http://localhost:8083/geoserver/wms", {layers: 'ind:ind'}     );
-map.addLayer(wms);
-map.zoomToMaxExtent();
+
 
 // function to make map visible
-
-function myFunction() {
-  document.getElementById("map").style.visibility = 'visible';
-}
-
+ var map = new OpenLayers.Map('map');
+ var wms;
+$("#submenu li").click(function() {
+   var id = $(this).attr('value');
+	//alert(id);
+	if (wms) {
+      window.map.removeLayer(wms);
+   }
+	wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
+	    "http://localhost:8083/geoserver/wms", {layers: [id]}     );
+	map.addLayer(wms);
+	map.zoomToMaxExtent();
+	
+ document.getElementById("map").style.visibility = 'visible';
+  
+});
 // function to display addition dropdown 
 function add(){
 	document.getElementById("map").style.visibility = 'hidden';
