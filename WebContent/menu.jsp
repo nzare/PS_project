@@ -76,12 +76,11 @@ Connection conn=null;
 		
 		PreparedStatement pst2;
 		PreparedStatement pst3;
-		String sql2 = "select * from alldept where id not in (select id from alldept natural join district_x)"; // Select all districts for addition option
-		String sql3 = "SELECT * FROM public.district_x "; // Select districts present in menu for deletion option
+		String sql2 = "select * from alldept_"+name +" where id not in (select id from alldept_" + name +" natural join display_" + name+")"; // Select all districts for addition option
+		String sql3 = "SELECT * FROM public.display_" + name; // Select districts present in menu for deletion option
 		pst2= conn.prepareStatement(sql2);
 		pst3= conn.prepareStatement(sql3);
-		ResultSet rs2= pst2.executeQuery();
-		ResultSet rs3= pst3.executeQuery();
+		
 		String val1,val2;
 		%>
 		 <%        
@@ -90,14 +89,15 @@ Connection conn=null;
 	String c = request.getParameter("ddept");
 	if(c!=null){
 		PreparedStatement pst5;
-    	String sql5 = "DELETE FROM district_x WHERE ID=?";
+    	String sql5 = "DELETE FROM display_" +name+ " WHERE ID=?";
     	pst5= conn.prepareStatement(sql5);
     	pst5.setString(1,c);
     	pst5.executeUpdate();
+    	
 	}
     if(a != null && b!=null){
     	PreparedStatement pst4;
-    	String sql4 = "INSERT INTO district_x VALUES (?, ?)";
+    	String sql4 = "INSERT INTO display_"+name +" VALUES (?, ?)";
     	pst4= conn.prepareStatement(sql4);
     	pst4.setString(1,b);
     	pst4.setString(2,a);
@@ -114,7 +114,10 @@ Connection conn=null;
 			  <input type="text" name="menuname" placeholder="MenuName" required>
 			  <br> <br>	
 	  <select name="dept">
-	  <%while(rs2.next()){
+	  <%
+	  ResultSet rs2= pst2.executeQuery();
+		ResultSet rs3= pst3.executeQuery();
+	  while(rs2.next()){
 		  val1=rs2.getString(1);
 	  %>
 	    <option value="<%=val1 %>"><%out.println(rs2.getString(2));%></option>
@@ -146,7 +149,7 @@ Connection conn=null;
 		<% 
 		
 	PreparedStatement pst;
-	String sql = "SELECT * FROM public.district_x "; // Select departments which are to be displayed in the menu
+	String sql = "SELECT * FROM public.display_"+name; // Select departments which are to be displayed in the menu
 	pst= conn.prepareStatement(sql);
 	ResultSet rs= pst.executeQuery();
 	ResultSetMetaData meta = rs.getMetaData();
@@ -166,7 +169,7 @@ Connection conn=null;
          //Select all sub-departments
     	
         while(rs1.next()){%>
-        	<li id="<%rs1.getString(1);%>" onclick="myFunction()"><a href="#"><%out.println(rs1.getString(1));%></a></li>
+        	<li id="<%rs1.getString(1);%>" onclick="myFunction()"><a href="#"><%out.println(rs1.getString(2));%></a></li>
         <%}
         %>   
 
