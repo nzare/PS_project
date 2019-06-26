@@ -6,12 +6,22 @@
 <%@page import="java.sql.ResultSetMetaData" %>
 <html>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- Styling  -->
 <style>
+body{
+	 background-image:url("cms.jpg");
+     height: 100%; 
+     background-position: center;
+     background-size: cover;
+     background-repeat:no-repeat;
+}
 h3
 {
-font-family:verdana;
-text-color:red;
+font-family:Raleway;
+font-size:40px;
 text-align: center;
+
 }
 .dropdown {
     position: relative;
@@ -34,12 +44,13 @@ text-align: center;
 
 /** Button Styles **/
 .dropdown button {
-    background: #FF6223;
+    background: #cc3399;
     color: #FFFFFF;
     border: none;
     margin: 0;
     padding: 0.4em 0.8em;
-    font-size: 1em;
+    font-size: 1.2em;
+    
 }
 
 /** List Item Styles **/
@@ -56,13 +67,65 @@ text-align: center;
     background: #BBBBBB;
 }
 }
+
+/* Scroll text effect*/
+.welcome {
+ height: 50px;	
+ overflow: hidden;
+ position: relative;
+}
+.welcome h5 {
+ font-size: 1.5em;
+ color: #ff0000;
+ position: absolute;
+ font-weight: 900;
+ width: 100%;
+ height: 100%;
+ margin: 0;
+ line-height: 50px;
+ text-align: center;
+ /* Starting position */
+ -moz-transform:translateX(100%);
+ -webkit-transform:translateX(100%);	
+ transform:translateX(100%);
+ /* Apply animation to this element */	
+ -moz-animation: welcome 0.5s linear infinite;
+ -webkit-animation: welcome 0.5s linear infinite;
+ animation: welcome 12s linear infinite;
+}
+/* Move it (define the animation) */
+@-moz-keyframes welcome {
+ 0%   { -moz-transform: translateX(100%); }
+ 100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes welcome {
+ 0%   { -webkit-transform: translateX(100%); }
+ 100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes welcome {
+ 0%   { 
+ -moz-transform: translateX(100%); /* Firefox bug fix */
+ -webkit-transform: translateX(100%); /* Firefox bug fix */
+ transform: translateX(100%); 		
+ }
+ 100% { 
+ -moz-transform: translateX(-100%); /* Firefox bug fix */
+ -webkit-transform: translateX(-100%); /* Firefox bug fix */
+ transform: translateX(-100%); 
+ }
+}
 </style>
+
 <head>
 <meta charset="ISO-8859-1">
 <title>Java CMS</title>
 </head>
 <body>
-<h3> Welcome to CMS</h3>
+<div class="my-container">
+
+<div class="welcome">
+<h5>Welcome to CMS. Select a district to continue...</h5>
+</div>
 <%
 //Connect to database postgresql
 Class.forName("org.postgresql.Driver");
@@ -80,20 +143,24 @@ Connection conn=null;
 	int colCount = meta.getColumnCount(); // get no of columns
 	%> 
 	<br> <br>
-	<center>
-	<div class="dropdown">
+<center>
+	<div class="dropdown" style="margin-top:10%; width: 40%;">
+	
 <!-- Select district from dropdown -->
 
-    <button>Select District</button>
+    <button style="width: 100%; font-family: "Lucida Console", Monaco, monospace;"><b><em>
+    Select District</em></b></button>
 
     <ul class="dropdown-menu" id='myid'>
     <%while(rs.next()){%>
-        <li id="<%rs.getString(2);%>"><a href="#"><%out.println(rs.getString(2));%></a></li>
+        <li id="<%rs.getString(2);%>"><a href="#"><b><em><%out.println(rs.getString(2));%></em></b></a></li>
 
            <%} %>
     </ul>
-    </center>
-</div>
+    </div>
+	</div>
+	
+</center>
 
 <script>
 $("#myid li").click(function() {
