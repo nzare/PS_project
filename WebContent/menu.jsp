@@ -11,13 +11,21 @@
 <meta charset="ISO-8859-1">
 <!-- Linking various style sheets -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   
   <!-- Styling  -->
 <style>
+body{
+	 background-image:url("bg.png");
+     height: 100%; 
+     background-position: center;
+     background-size: cover;
+     background-repeat:repeat-y;
+}
 ul {
- margin: 0;
+ clear: right;
  padding: 0;
  list-style: none;
  width: 150px;
@@ -26,10 +34,11 @@ ul {
  }
  
  ul li {
- position: relative;
+ position:relative;
+
  }
 li ul {
- position: absolute;
+ position:absolute;
  right:150px;
  top: 0;
  display: none;
@@ -39,11 +48,67 @@ ul li a {
  display: block;
  text-decoration: none;
  color: #777;
- background: #fff;
+ background: rgb(224,211,250);
  padding: 5px;
  border: 1px solid #ccc;
  border-bottom: 0;
  }
+ .btn-group .button {
+  /*margin-left:57.1em;
+  margin-top:2em;
+  margin-bottom: 1.5em;*/
+  background-color:Dodgerblue; 
+  border: none;
+  color: white;
+  padding: 10px 22px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  cursor: pointer;
+  float:right;
+  position:relative;
+}
+.btn-group .button:hover {
+  background-color:rgb(0,128,158);
+}
+#adddept {  
+  font-weight: bold;
+  position:fixed;
+  left:0;
+  right:0;
+  margin: auto;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 400px;
+  height: auto;
+  padding: 15px;  
+  background: red;
+  text-align: center;
+  box-sizing: content-box;
+  border: 4px dashed black;
+}
+#deldept {  
+  font-weight: bold;
+  position:fixed;
+  left:0;
+  right:0;
+  margin: auto;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 400px;
+  height: auto;
+  padding: 15px;  
+  background: red;
+  text-align: center;
+  box-sizing: content-box;
+  border: 4px dashed black;
+}
+
 </style>
 
 <title>Menus</title>
@@ -53,18 +118,23 @@ ul li a {
 
 </head>
 <body>
-<h2> District: 
+ 
 <%
-
 // Display the name of district selected
 String name=request.getParameter("name");
 if(name!=null){
-out.println(name);
-}
+%>
+<center><h2 style="font:Raleway;"> <i class="fa fa-map-o"></i>  <i class="fa fa-map-marker"></i>
+ District: <b><% out.println(name);%></b></h2></center>
+<% }
 %>
 </h2>
+<div style="margin-left:84%; margin-bottom:2%;margin-top:3%;">
+	<div class="btn-group">
+  <button class="button" onclick="del()">Delete</button>
+  <button class="button" onclick="add()"> Add </button></div>
+  </div>
 <%
-
 //Connect to database postgresql
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
@@ -105,47 +175,7 @@ Connection conn=null;
     	
     }
     %>
-		<!-- Drop Down for addition of menu -->
 		
-		<div id="adddept" style="visibility:hidden;">
-		<form action="#" method="post">
-			 
-			Name:<br>
-			  <input type="text" name="menuname" placeholder="MenuName" required>
-			  <br> <br>	
-	  <select name="dept">
-	  <%
-	  ResultSet rs2= pst2.executeQuery();
-		ResultSet rs3= pst3.executeQuery();
-	  while(rs2.next()){
-		  val1=rs2.getString(1);
-	  %>
-	    <option value="<%=val1 %>"><%out.println(rs2.getString(2));%></option>
-	     <% }%>
-	  </select>
-  <br><br>
-  <input type="submit" value="Submit">
-</form>
-			
-			
-		</div>
-		<!-- Drop Down for deletion of menu -->
-			<div id="deldept" style="visibility:hidden;">
-		<form action="#" method="post">
-			 	
-	  <select name="ddept">
-	  <%while(rs3.next()){
-		  val2=rs3.getString(1);
-	  %>
-	    <option value="<%=val2 %>"><%out.println(rs3.getString(2));%></option>
-	     <% }%>
-	  </select>
-  <br><br>
-  <input type="submit" value="Submit">
-</form>
-			
-			
-		</div>
 		<% 
 		
 	PreparedStatement pst;
@@ -188,20 +218,52 @@ Connection conn=null;
     </ul>
   
     <!-- buttons for addition and deletion option -->
+    <div id="adddept" style="display:none">
+    	<form action="#" method="post">
+			 
+			Name:<br>
+			  <input type="text" name="menuname" placeholder="MenuName" required>
+			  <br> <br>	
+	  <select name="dept">
+	  <%
+	  ResultSet rs2= pst2.executeQuery();
+		ResultSet rs3= pst3.executeQuery();
+	  while(rs2.next()){
+		  val1=rs2.getString(1);
+	  %>
+	    <option value="<%=val1 %>"><%out.println(rs2.getString(2));%></option>
+	     <% }%>
+	  </select>
+  <br><br>
+  <input type="submit"  value="Submit">
+  <button type="button" onclick="cancel()">Cancel</button>
+</form>
     
-    <button type="button" class="btn btn-warning" onclick="add()">Add</button>
-  	<button type="button" class="btn btn-danger" onclick="del()">Delete</button>
-	<div style="visibility:hidden;">
-	
-</div>
+    </div> 
+    
+<div id="deldept" style="display:none">
+    	<form action="#" method="post">
+			 	
+	  <select name="ddept">
+	  <%while(rs3.next()){
+		  val2=rs3.getString(1);
+	  %>
+	    <option value="<%=val2 %>"><%out.println(rs3.getString(2));%></option>
+	     <% }%>
+	  </select>
+  <br><br>
+  <input type="submit" value="Submit">
+  <button type="button" onclick="cancel()">Cancel</button>
+</form>
+    
+    </div> 
+  
 	<!-- Div to display map -->
     <div style="width:50%; height:50%; visibility: hidden;" id="map" >
     </div>
   
 <script defer="defer" type="text/javascript">
 // Display map from geoserver using open layers
-
-
 // function to make map visible
  var map = new OpenLayers.Map('map');
  var wms;
@@ -221,16 +283,26 @@ $("#submenu li").click(function() {
 });
 // function to display addition dropdown 
 function add(){
-	document.getElementById("map").style.visibility = 'hidden';
-	document.getElementById("adddept").style.visibility = 'visible';
-	document.getElementById("deldept").style.visibility = 'hidden';
+	document.getElementById("map").style.display = "none"; 
+	document.getElementById("adddept").style.display = "inline-block";
+	document.getElementById("deldept").style.display = "none"; 
+	document.getElementById("submit1").style.display = "none";
+	document.getElementById("submit2").style.display = "none";
 }
-
 //function to display deletion dropdown
 function del(){
-	document.getElementById("map").style.visibility = 'hidden';
-	document.getElementById("deldept").style.visibility = 'visible';
-	document.getElementById("adddept").style.visibility = 'hidden';
+	document.getElementById("map").style.display = "none"; 
+	document.getElementById("deldept").style.display = "inline-block";
+	document.getElementById("adddept").style.display = "none"; 
+	document.getElementById("submitadd").style.display = "none";
+	document.getElementById("submitdel").style.display = "none";
+}
+function cancel(){
+	document.getElementById("map").style.display = "none"; 
+	document.getElementById("deldept").style.display = "none";
+	document.getElementById("adddept").style.display = "none"; 
+	document.getElementById("submitadd").style.display = "none";
+	document.getElementById("submitdel").style.display = "none";
 }
 
 </script>
