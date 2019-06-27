@@ -72,6 +72,8 @@ ul li a {
 .btn-group .button:hover {
   background-color:rgb(0,128,158);
 }
+
+
 #adddept {  
   font-weight: bold;
   position:fixed;
@@ -85,10 +87,10 @@ ul li a {
   width: 400px;
   height: auto;
   padding: 15px;  
-  background: red;
+  background: LightGray;
   text-align: center;
   box-sizing: content-box;
-  border: 4px dashed black;
+  border: 4px double black;
 }
 #deldept {  
   font-weight: bold;
@@ -103,10 +105,10 @@ ul li a {
   width: 400px;
   height: auto;
   padding: 15px;  
-  background: red;
+  background: LightGray;
   text-align: center;
   box-sizing: content-box;
-  border: 4px dashed black;
+  border: 4px double black;
 }
 
 </style>
@@ -124,17 +126,30 @@ ul li a {
 String name=request.getParameter("name");
 if(name!=null){
 %>
+
+<!-- Heading -->
+
 <center><h2 style="font:Raleway;"> <i class="fa fa-map-o"></i>  <i class="fa fa-map-marker"></i>
  District: <b><% out.println(name);%></b></h2></center>
 <% }
 %>
+
+<!-- Back button -->
+<button type="button" onclick="back()" style="background-color:Dodgerblue; border: none;color: white;padding: 10px 22px;text-align: center;
+  text-decoration: none;display: inline-block;font-size: 14px;cursor: pointer; position:relative;">
+  Choose Another District</button>
 </h2>
-<div style="margin-left:84%; margin-bottom:2%;margin-top:3%;">
+
+
+<!-- Addition and deletion buttons -->
+
+<div style="margin-left:80%; margin-bottom:2%;margin-top:3%;">
 	<div class="btn-group">
-  <button class="button" onclick="del()">Delete</button>
-  <button class="button" onclick="add()"> Add </button></div>
+  <button class="button" onclick="del()"><i class="fa fa-trash"></i>Delete</button>
+  <button class="button" onclick="add()"><i class="fa fa-plus-square"></i> Add </button></div>
   </div>
 <%
+
 //Connect to database postgresql
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
@@ -157,7 +172,10 @@ Connection conn=null;
     String a = request.getParameter("menuname");
 	String b = request.getParameter("dept");
 	String c = request.getParameter("ddept");
+	
+	
 	if(c!=null){
+		// Update database on deletion
 		PreparedStatement pst5;
     	String sql5 = "DELETE FROM display_" +name+ " WHERE ID=?";
     	pst5= conn.prepareStatement(sql5);
@@ -166,6 +184,8 @@ Connection conn=null;
     	
 	}
     if(a != null && b!=null){
+    	
+    	//Update database on addition
     	PreparedStatement pst4;
     	String sql4 = "INSERT INTO display_"+name +" VALUES (?, ?)";
     	pst4= conn.prepareStatement(sql4);
@@ -203,7 +223,7 @@ Connection conn=null;
         while(rs1.next()){
         	temp1=rs1.getString(1);
         %>
-        	<li value="<%=temp1%>"><a href="#"><%out.println(rs1.getString(2));%></a></li>
+        	<li value="<%=temp1%>" ><a href="#"><%out.println(rs1.getString(2));%></a></li>
         <%}
         %>   
 
@@ -217,14 +237,17 @@ Connection conn=null;
 
     </ul>
   
-    <!-- buttons for addition and deletion option -->
+    <!-- Pop up Addition -->
+    
     <div id="adddept" style="display:none">
+    <h4>Add Department</h4> <br>
     	<form action="#" method="post">
 			 
-			Name:<br>
-			  <input type="text" name="menuname" placeholder="MenuName" required>
+			Department Name: 
+			  <input type="text" name="menuname"  required>
 			  <br> <br>	
-	  <select name="dept">
+			  Select Department: 
+	  <select name="dept" style="width:43%;">
 	  <%
 	  ResultSet rs2= pst2.executeQuery();
 		ResultSet rs3= pst3.executeQuery();
@@ -235,16 +258,19 @@ Connection conn=null;
 	     <% }%>
 	  </select>
   <br><br>
-  <input type="submit"  value="Submit">
-  <button type="button" onclick="cancel()">Cancel</button>
+  <input type="submit" class="btn btn-success" value="Submit">
+  <button type="button" class="btn btn-danger" onclick="cancel()">Cancel</button>
 </form>
     
     </div> 
     
+    <!-- Pop up Deletion -->
+    
 <div id="deldept" style="display:none">
+<h4>Delete Department</h4> <br>
     	<form action="#" method="post">
 			 	
-	  <select name="ddept">
+	  <select name="ddept" style="width:43%;">
 	  <%while(rs3.next()){
 		  val2=rs3.getString(1);
 	  %>
@@ -252,8 +278,9 @@ Connection conn=null;
 	     <% }%>
 	  </select>
   <br><br>
-  <input type="submit" value="Submit">
-  <button type="button" onclick="cancel()">Cancel</button>
+<input type="submit" class="btn btn-success" value="Submit"> 
+     <button type="button" class="btn btn-danger" onclick="cancel()">Cancel</button>
+ 
 </form>
     
     </div> 
@@ -261,26 +288,12 @@ Connection conn=null;
 	<!-- Div to display map -->
     <div style="width:50%; height:50%; visibility: hidden;" id="map" >
     </div>
+    
   
 <script defer="defer" type="text/javascript">
 // Display map from geoserver using open layers
 // function to make map visible
- var map = new OpenLayers.Map('map');
- var wms;
-$("#submenu li").click(function() {
-   var id = $(this).attr('value');
-	//alert(id);
-	if (wms) {
-      window.map.removeLayer(wms);
-   }
-	wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
-	    "http://localhost:8083/geoserver/wms", {layers: [id]}     );
-	map.addLayer(wms);
-	map.zoomToMaxExtent();
-	
- document.getElementById("map").style.visibility = 'visible';
-  
-});
+
 // function to display addition dropdown 
 function add(){
 	document.getElementById("map").style.display = "none"; 
@@ -289,6 +302,7 @@ function add(){
 	document.getElementById("submit1").style.display = "none";
 	document.getElementById("submit2").style.display = "none";
 }
+
 //function to display deletion dropdown
 function del(){
 	document.getElementById("map").style.display = "none"; 
@@ -297,13 +311,41 @@ function del(){
 	document.getElementById("submitadd").style.display = "none";
 	document.getElementById("submitdel").style.display = "none";
 }
+// Function to return to page after cancel is pressed either fro add/delete window
+
 function cancel(){
-	document.getElementById("map").style.display = "none"; 
-	document.getElementById("deldept").style.display = "none";
-	document.getElementById("adddept").style.display = "none"; 
-	document.getElementById("submitadd").style.display = "none";
-	document.getElementById("submitdel").style.display = "none";
+	var test= window.location.href; // get current page url
+	var lastChar = test.substr(test.length -1); 
+	if(lastChar=="#"){
+		var newStr = test.substring(0, test.length-1);
+		window.location.replace(newStr);
+	}
+	else{
+	 window.location.replace(test);
+	}
 }
+
+// Return to first page to choose another district
+function back(){
+	 window.location.replace("Welcome.jsp");
+}
+
+var map = new OpenLayers.Map('map');
+var wms;
+$("#submenu li").click(function() {
+  var id = $(this).attr('value');
+	//alert(id);
+	if (wms) {
+     window.map.removeLayer(wms);
+  }
+	wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
+	    "http://localhost:8083/geoserver/wms", {layers: [id]}     );
+	map.addLayer(wms);
+	map.zoomToMaxExtent();
+	
+document.getElementById("map").style.visibility = 'visible';
+ 
+});
 
 </script>
 </body>
