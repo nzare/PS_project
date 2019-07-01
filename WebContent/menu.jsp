@@ -161,7 +161,7 @@ Connection conn=null;
 		
 		PreparedStatement pst2;
 		PreparedStatement pst3;
-		String sql2 = "select * from alldept_"+name +" where id not in (select id from alldept_" + name +" natural join display_" + name+")"; // Select all districts for addition option
+		String sql2 = "select * from alldept_x" +" where id not in (select id from alldept_x" +" natural join display_" + name+")"; // Select all districts for addition option
 		String sql3 = "SELECT * FROM public.display_" + name; // Select districts present in menu for deletion option
 		pst2= conn.prepareStatement(sql2);
 		pst3= conn.prepareStatement(sql3);
