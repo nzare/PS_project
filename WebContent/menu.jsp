@@ -1,3 +1,4 @@
+
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.ResultSet"%>
 <%@page import="java.sql.Statement"%>
@@ -35,7 +36,6 @@ ul {
  
  ul li {
  position:relative;
-
  }
 li ul {
  position:absolute;
@@ -72,8 +72,6 @@ ul li a {
 .btn-group .button:hover {
   background-color:rgb(0,128,158);
 }
-
-
 #adddept {  
   font-weight: bold;
   position:fixed;
@@ -93,6 +91,42 @@ ul li a {
   border: 4px double black;
 }
 #deldept {  
+  font-weight: bold;
+  position:fixed;
+  left:0;
+  right:0;
+  margin: auto;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 400px;
+  height: auto;
+  padding: 15px;  
+  background: LightGray;
+  text-align: center;
+  box-sizing: content-box;
+  border: 4px double black;
+}
+#asubdept {  
+  font-weight: bold;
+  position:fixed;
+  left:0;
+  right:0;
+  margin: auto;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 400px;
+  height: auto;
+  padding: 15px;  
+  background: LightGray;
+  text-align: center;
+  box-sizing: content-box;
+  border: 4px double black;
+}
+#dsubdept {  
   font-weight: bold;
   position:fixed;
   left:0;
@@ -140,16 +174,24 @@ if(name!=null){
   Choose Another District</button>
 </h2>
 
-
-<!-- Addition and deletion buttons -->
+<!-- Buttons for adding and deleting Department -->
 
 <div style="margin-left:80%; margin-bottom:2%;margin-top:3%;">
+<center><b>Department</b></center>
 	<div class="btn-group">
   <button class="button" onclick="del()"><i class="fa fa-trash"></i>Delete</button>
   <button class="button" onclick="add()"><i class="fa fa-plus-square"></i> Add </button></div>
   </div>
+  
+  <!-- Buttons for adding and deleting sub-departments -->
+  
+  <div style="margin-left:80%; margin-bottom:2%;margin-top:3%;">
+  <center><b>Sub-Department</b></center>
+	<div class="btn-group">
+ <button class="button" onclick="subdel()"><i class="fa fa-trash"></i>Delete</button>
+  <button class="button" onclick="subadd()"><i class="fa fa-plus-square"></i> Add </button></div>
+  </div>
 <%
-
 //Connect to database postgresql
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
@@ -172,10 +214,12 @@ Connection conn=null;
     String a = request.getParameter("menuname");
 	String b = request.getParameter("dept");
 	String c = request.getParameter("ddept");
-	
-	
+	String d = request.getParameter("subname");
+	String e = request.getParameter("subadept");
+	String f = request.getParameter("subddept");
+	String g,h;
 	if(c!=null){
-		// Update database on deletion
+		// Update database on deletion of department
 		PreparedStatement pst5;
     	String sql5 = "DELETE FROM display_" +name+ " WHERE ID=?";
     	pst5= conn.prepareStatement(sql5);
@@ -185,7 +229,7 @@ Connection conn=null;
 	}
     if(a != null && b!=null){
     	
-    	//Update database on addition
+    	//Update database on addition of department
     	PreparedStatement pst4;
     	String sql4 = "INSERT INTO display_"+name +" VALUES (?, ?)";
     	pst4= conn.prepareStatement(sql4);
@@ -194,6 +238,30 @@ Connection conn=null;
     	pst4.executeUpdate();
     	
     }
+    if(d !=null && e!=null){
+    	
+    	// Update database on addition of sub- department
+    	
+    	g = e.substring(0, e.length()-1) + name;
+    	PreparedStatement pst40;
+    	String sql40 = "INSERT INTO "+g +" VALUES (?, ?)";
+    	pst40= conn.prepareStatement(sql40);
+    	pst40.setString(1,e);
+    	pst40.setString(2,d);
+    	pst40.executeUpdate();
+    }
+    
+    if(f!=null){
+		// Update database on deletion of sub-department
+		PreparedStatement pst50;
+		h = f.substring(0, f.length()-1) + name;
+    	String sql50 = "DELETE FROM "+ h + " WHERE ID=?";
+    	pst50= conn.prepareStatement(sql50);
+    	pst50.setString(1,f);
+    	pst50.executeUpdate();
+    	
+	}
+    
     %>
 		
 		<% 
@@ -210,7 +278,7 @@ Connection conn=null;
 <%while(rs.next()){%>
         <li id="<%rs.getString(2);%>"><a href="#"><%out.println(rs.getString(2));
         	temp=rs.getString(1);
-        	String sql1 = "SELECT * FROM public."+temp; // Select sub-departments table
+        	String sql1 = "SELECT * FROM public."+temp+name; // Select sub-departments table
             PreparedStatement pst1;
         	pst1= conn.prepareStatement(sql1);
         	ResultSet rs1= pst1.executeQuery(); 
@@ -237,7 +305,7 @@ Connection conn=null;
 
     </ul>
   
-    <!-- Pop up Addition -->
+    <!-- Pop up Addition of Department -->
     
     <div id="adddept" style="display:none">
     <h4>Add Department</h4> <br>
@@ -264,7 +332,7 @@ Connection conn=null;
     
     </div> 
     
-    <!-- Pop up Deletion -->
+    <!-- Pop up Deletion of Department-->
     
 <div id="deldept" style="display:none">
 <h4>Delete Department</h4> <br>
@@ -278,13 +346,77 @@ Connection conn=null;
 	     <% }%>
 	  </select>
   <br><br>
-<input type="submit" class="btn btn-success" value="Submit"> 
+	 <input type="submit" class="btn btn-success" value="Submit"> 
      <button type="button" class="btn btn-danger" onclick="cancel()">Cancel</button>
  
 </form>
     
     </div> 
-  
+    
+     <!-- Pop up Addition of Sub-Department-->
+    
+    <div id="asubdept" style="display:none">
+    <h4>Add Sub-Department</h4> <br>
+    <form action="#" method="post">
+    Sub-Department Name: 
+			  <input type="text" name="subname"  required>
+			  <br> <br>	
+			  Select Sub-Department: 
+	   <select name="subadept" style="width:43%;">
+	  <% 
+	  rs3= pst3.executeQuery();
+	  while(rs3.next()){
+		  val2=rs3.getString(1);
+		  String sql10 = "SELECT * FROM public."+val2 + " where id not in (select id from " +val2+" natural join " +val2 + name+")"; 
+          PreparedStatement pst10;
+      	pst10= conn.prepareStatement(sql10);
+      	ResultSet rs10= pst10.executeQuery(); 
+      	while(rs10.next()){
+      		val1=rs10.getString(1);
+      		 %>
+     	    <option value="<%=val1 %>"><%out.println(rs10.getString(2));%></option>
+     	     <% 
+      	}
+	  }
+	  %>
+	  </select>
+	  <br> <br>
+	   <input type="submit" class="btn btn-success" value="Submit" > 
+     <button type="button" class="btn btn-danger" onclick="cancel()">Cancel</button>
+	  </form>
+    </div> 
+    
+     <!-- Pop up Deletion of Sub-Department-->
+   
+     <div id="dsubdept" style="display:none">
+    <h4>Delete Sub-Department</h4> <br>
+    	<form action="#" method="post">
+    
+	   <select name="subddept" style="width:43%;">
+	  <% 
+	  rs3= pst3.executeQuery();
+	  while(rs3.next()){
+		  val2=rs3.getString(1);
+		  String sql10 = "SELECT * FROM public."+val2+name; 
+          PreparedStatement pst10;
+      	pst10= conn.prepareStatement(sql10);
+      	ResultSet rs10= pst10.executeQuery(); 
+      	while(rs10.next()){
+      		val1=rs10.getString(1);
+      		 %>
+     	    <option value="<%=val1 %>"><%out.println(rs10.getString(2));%></option>
+     	     <% 
+      	}
+	  }
+	  %>
+	  </select>
+	  <br> <br>
+	   <input type="submit" class="btn btn-success" value="Submit" > 
+     <button type="button" class="btn btn-danger" onclick="cancel()">Cancel</button>
+	  </form>
+	  
+    </div> 
+    
 	<!-- Div to display map -->
     <div style="width:50%; height:50%; visibility: hidden;" id="map" >
     </div>
@@ -294,13 +426,14 @@ Connection conn=null;
 // Display map from geoserver using open layers
 // function to make map visible
 
-// function to display addition dropdown 
+// function to display addition of department dropdown 
 function add(){
 	document.getElementById("map").style.display = "none"; 
 	document.getElementById("adddept").style.display = "inline-block";
 	document.getElementById("deldept").style.display = "none"; 
-	document.getElementById("submit1").style.display = "none";
-	document.getElementById("submit2").style.display = "none";
+	
+	document.getElementById("asubdept").style.display = "none";
+	document.getElementById("dsubdept").style.display = "none";
 }
 
 //function to display deletion dropdown
@@ -308,11 +441,34 @@ function del(){
 	document.getElementById("map").style.display = "none"; 
 	document.getElementById("deldept").style.display = "inline-block";
 	document.getElementById("adddept").style.display = "none"; 
-	document.getElementById("submitadd").style.display = "none";
-	document.getElementById("submitdel").style.display = "none";
+	
+	document.getElementById("asubdept").style.display = "none";
+	document.getElementById("dsubdept").style.display = "none";
 }
-// Function to return to page after cancel is pressed either fro add/delete window
+//function to display addition of sub-department dropdown 
+function subadd(){
+	document.getElementById("map").style.display = "none"; 
+	document.getElementById("deldept").style.display = "none";
+	document.getElementById("adddept").style.display = "none"; 
+	document.getElementById("asubdept").style.display = "inline-block"; 
+	document.getElementById("dsubdept").style.display = "none";
 
+	
+}
+
+//function to display deletion of sub-department dropdown
+
+function subdel(){
+	document.getElementById("map").style.display = "none"; 
+	document.getElementById("deldept").style.display = "none";
+	document.getElementById("adddept").style.display = "none"; 
+	document.getElementById("dsubdept").style.display = "inline-block"; 
+	document.getElementById("asubdept").style.display = "none";
+
+	
+}
+
+// Function to return to page after cancel is pressed either from add/delete window
 function cancel(){
 	var test= window.location.href; // get current page url
 	var lastChar = test.substr(test.length -1); 
@@ -324,11 +480,11 @@ function cancel(){
 	 window.location.replace(test);
 	}
 }
-
 // Return to first page to choose another district
 function back(){
 	 window.location.replace("Welcome.jsp");
 }
+//display map
 
 var map = new OpenLayers.Map('map');
 var wms;
@@ -346,7 +502,7 @@ $("#submenu li").click(function() {
 document.getElementById("map").style.visibility = 'visible';
  
 });
-
 </script>
 </body>
 </html> 
+
