@@ -5,6 +5,8 @@
 <%@page import="java.sql.Connection"%>
 <%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.ResultSetMetaData" %>
+
+<%@page import="javax.script.*" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <html>
@@ -53,10 +55,23 @@ ul li a {
  border: 1px solid #ccc;
  border-bottom: 0;
  }
+ ul li .btn-group .button  {
+ 
+ text-decoration: none;
+ color: white;
+ background: Dodgerblue;
+ padding: 5px;
+ border: 1px solid #ccc;
+ border-bottom: 0;
+ margin-left:auto;
+ margin-right:0;
+ }
  .btn-group .button {
   /*margin-left:57.1em;
   margin-top:2em;
   margin-bottom: 1.5em;*/
+  margin-left:auto;
+  margin-right:0;
   background-color:Dodgerblue; 
   border: none;
   color: white;
@@ -144,6 +159,24 @@ ul li a {
   box-sizing: content-box;
   border: 4px double black;
 }
+#firstmap {  
+  font-weight: bold;
+  position:fixed;
+  left:0;
+  right:0;
+  margin: auto;
+  top: 60%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 50%;
+  height: 50%;
+  padding: 15px;  
+  background: LightGray;
+  text-align: center;
+  box-sizing: content-box;
+  border: 4px double black;
+}
 
 </style>
 
@@ -158,40 +191,17 @@ ul li a {
 <%
 // Display the name of district selected
 String name=request.getParameter("name");
-if(name!=null){
-%>
-
-<!-- Heading -->
-
-<center><h2 style="font:Raleway;"> <i class="fa fa-map-o"></i>  <i class="fa fa-map-marker"></i>
- District: <b><% out.println(name);%></b></h2></center>
-<% }
-%>
-
-<!-- Back button -->
-<button type="button" onclick="back()" style="background-color:Dodgerblue; border: none;color: white;padding: 10px 22px;text-align: center;
-  text-decoration: none;display: inline-block;font-size: 14px;cursor: pointer; position:relative;">
-  Choose Another District</button>
-</h2>
-
-<!-- Buttons for adding and deleting Department -->
-
-<div style="margin-left:80%; margin-bottom:2%;margin-top:3%;">
-<center><b>Department</b></center>
-	<div class="btn-group">
-  <button class="button" onclick="del()"><i class="fa fa-trash"></i>Delete</button>
-  <button class="button" onclick="add()"><i class="fa fa-plus-square"></i> Add </button></div>
-  </div>
-  
-  <!-- Buttons for adding and deleting sub-departments -->
-  
-  <div style="margin-left:80%; margin-bottom:2%;margin-top:3%;">
-  <center><b>Sub-Department</b></center>
-	<div class="btn-group">
- <button class="button" onclick="subdel()"><i class="fa fa-trash"></i>Delete</button>
-  <button class="button" onclick="subadd()"><i class="fa fa-plus-square"></i> Add </button></div>
-  </div>
-<%
+String m=request.getParameter("mode");
+String mode="";
+if(m==null){
+	mode="guest";
+}
+else if(m.equals("ahjdeifirnf")){
+	mode="admin";
+}
+else {
+	mode="guest";
+}
 //Connect to database postgresql
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
@@ -200,9 +210,59 @@ Connection conn=null;
 		String user ="postgres";
 		String password = "geoserver";
 		conn= DriverManager.getConnection(url,user,password); 
+		PreparedStatement pst_first;
+		
+	String state="";	
+if(name!=null){
+		String sql_first="select * from public.master where id= ? ";
+		pst_first= conn.prepareStatement(sql_first);
+		pst_first.setString(1,name);
+		ResultSet rs_first=pst_first.executeQuery();
+		while(rs_first.next()){
+			state=rs_first.getString(2);
+			%>
+			<div>
+			<center><h2 style="font:Raleway;"> <i class="fa fa-map-o"></i>  <i class="fa fa-map-marker"></i>
+			 State: <b><%out.println(rs_first.getString(2)); %></b></h2></center>
+			 <div style="margin-left:85%;color:rgb(224,211,250);font-size:15px;"><b>Welcome <%out.println(mode); %></b></div>
+		  </div>
+		<% }
+			
+}%>
+
+<!-- Heading -->
+
+
+
+<!-- Back button -->
+
+<button type="button" onclick="back()" style="background-color:Dodgerblue; border: none;color: white;padding: 10px 22px;text-align: center;
+  text-decoration: none;display: inline-block;font-size: 14px;cursor: pointer; position:relative;">
+  Choose Another State</button>
+  <button type="button" onclick="login()" style="background-color:Dodgerblue; border: none;color: white;padding: 10px 22px;text-align: center;
+  text-decoration: none;display: inline-block;font-size: 14px;cursor: pointer; position:relative;">
+  
+  <%if(mode.equals("admin")){ 
+  	out.println("Sign Out");
+  }
+  else{
+	  out.println("Admin Sign In");
+  }%>
+  </button>
+<!-- Buttons for adding and deleting Department -->
+
+
+  
+  <!-- Buttons for adding and deleting sub-departments -->
+  
+  
+<%
+
 		
 		PreparedStatement pst2;
 		PreparedStatement pst3;
+		
+				
 		String sql2 = "select * from alldept_x" +" where id not in (select id from alldept_x" +" natural join display_" + name+")"; // Select all districts for addition option
 		String sql3 = "SELECT * FROM public.display_" + name; // Select districts present in menu for deletion option
 		pst2= conn.prepareStatement(sql2);
@@ -272,26 +332,56 @@ Connection conn=null;
 	ResultSet rs= pst.executeQuery();
 	ResultSetMetaData meta = rs.getMetaData();
 	String temp;
-	String temp1;
+	String temp1,temp2;
 	%> 
-<ul>
-<%while(rs.next()){%>
-        <li id="<%rs.getString(2);%>"><a href="#"><%out.println(rs.getString(2));
+	
+	<br><br><br><br>
+<ul id='menu'>
+<%while(rs.next()){
+	temp2=rs.getString(2);
+%>
+        <li value="<%=temp2%>"><a href="#"><%out.println(rs.getString(2));
         	temp=rs.getString(1);
         	String sql1 = "SELECT * FROM public."+temp+name; // Select sub-departments table
             PreparedStatement pst1;
         	pst1= conn.prepareStatement(sql1);
         	ResultSet rs1= pst1.executeQuery(); 
+        	
+        	String sql11 = "SELECT count(*) FROM public."+temp+name; // Select sub-departments table
+            PreparedStatement pst11;
+        	pst11= conn.prepareStatement(sql11);
+        	ResultSet rs11= pst11.executeQuery(); 
+        	rs11.next();
+        	int count=rs11.getInt(1);
         %></a>
         
         <ul id='submenu'>
         <%
          //Select all sub-departments
-    	
+    	if(count==0){%>
+    		<li>
+    		<div style="background-color:rgb(224,211,250);">
+    		<div class="btn-group">
+    		
+ 			<button class="button" onclick="subdel()"><i class="fa fa-trash"></i>Delete</button>
+ 			 <button class="button" onclick="subadd()"><i class="fa fa-plus-square"></i> Add </button>
+ 			 </div>
+  			</div>
+  			
+  			</li>
+    	<%}
         while(rs1.next()){
         	temp1=rs1.getString(1);
         %>
-        	<li value="<%=temp1%>" ><a href="#"><%out.println(rs1.getString(2));%></a></li>
+        	<li value="<%=temp1%>" ><a href="#"><%out.println(rs1.getString(2));%></a>
+        	<div >
+  			<div style="background-color:rgb(224,211,250);">
+			<div class="btn-group">
+ 			<button class="button" onclick="subdel()"><i class="fa fa-trash"></i>Delete</button>
+ 			 <button class="button" onclick="subadd()"><i class="fa fa-plus-square"></i> Add </button></div>
+  			</div>
+  			</div>
+  			</li>
         <%}
         %>   
 
@@ -304,7 +394,20 @@ Connection conn=null;
            <%} %>
 
     </ul>
-  
+    <br>
+    <div style="margin-left:80%; margin-bottom:2%;margin-top:4%;">
+ 
+	<div class="btn-group">
+	<br>
+	<br>
+  <button class="button" onclick="del()"><i class="fa fa-trash"></i>Delete</button>
+  <button class="button" onclick="add()"><i class="fa fa-plus-square"></i> Add </button></div>
+  </div>
+  <center>
+  <div id="firstmap">
+  	
+  </div>
+  </center>
     <!-- Pop up Addition of Department -->
     
     <div id="adddept" style="display:none">
@@ -350,14 +453,43 @@ Connection conn=null;
      <button type="button" class="btn btn-danger" onclick="cancel()">Cancel</button>
  
 </form>
-    
+ 
+ 
+ 
     </div> 
-    
+     
+    <script>
+	   var d = "";
+	   
+	    var d = "";
+	    $("#menu li").mouseover(function() {
+	       d=$(this).attr('value');
+	       document.cookie = "visits="+d+"; path=/;";
+	      
+	       //alert(document.cookie);
+	     
+	    });
+	   
+  </script> 
+  <%
+  Cookie[] cookies = request.getCookies();
+String dept="";
+
+  if (cookies != null) {
+   for (Cookie cookie : cookies) {
+     if (cookie.getName().equals("visits")) {
+    	 
+       	dept=cookie.getValue();
+      }
+    }
+  }
+  
+  %>
      <!-- Pop up Addition of Sub-Department-->
     
     <div id="asubdept" style="display:none">
-    <h4>Add Sub-Department</h4> <br>
-    <form action="#" method="post">
+	<%out.println(dept); %>
+      <form action="#" method="post">
     Sub-Department Name: 
 			  <input type="text" name="subname"  required>
 			  <br> <br>	
@@ -410,7 +542,7 @@ Connection conn=null;
 	  }
 	  %>
 	  </select>
-	  <br> <br>
+	  <br> <br> 
 	   <input type="submit" class="btn btn-success" value="Submit" > 
      <button type="button" class="btn btn-danger" onclick="cancel()">Cancel</button>
 	  </form>
@@ -420,18 +552,19 @@ Connection conn=null;
 	<!-- Div to display map -->
     <div style="width:50%; height:50%; visibility: hidden;" id="map" >
     </div>
-    
-  
+   
 <script defer="defer" type="text/javascript">
 // Display map from geoserver using open layers
 // function to make map visible
 
 // function to display addition of department dropdown 
+var m="<%=m%>";
+var mode="<%=mode%>";
 function add(){
 	document.getElementById("map").style.display = "none"; 
 	document.getElementById("adddept").style.display = "inline-block";
 	document.getElementById("deldept").style.display = "none"; 
-	
+	document.getElementById("firstmap").style.display = 'none';
 	document.getElementById("asubdept").style.display = "none";
 	document.getElementById("dsubdept").style.display = "none";
 }
@@ -441,17 +574,19 @@ function del(){
 	document.getElementById("map").style.display = "none"; 
 	document.getElementById("deldept").style.display = "inline-block";
 	document.getElementById("adddept").style.display = "none"; 
-	
+	document.getElementById("firstmap").style.display = 'none';
 	document.getElementById("asubdept").style.display = "none";
 	document.getElementById("dsubdept").style.display = "none";
 }
 //function to display addition of sub-department dropdown 
 function subadd(){
+	
 	document.getElementById("map").style.display = "none"; 
 	document.getElementById("deldept").style.display = "none";
 	document.getElementById("adddept").style.display = "none"; 
 	document.getElementById("asubdept").style.display = "inline-block"; 
 	document.getElementById("dsubdept").style.display = "none";
+	document.getElementById("firstmap").style.display = 'none';
 
 	
 }
@@ -464,7 +599,7 @@ function subdel(){
 	document.getElementById("adddept").style.display = "none"; 
 	document.getElementById("dsubdept").style.display = "inline-block"; 
 	document.getElementById("asubdept").style.display = "none";
-
+	document.getElementById("firstmap").style.display = 'none';
 	
 }
 
@@ -482,11 +617,30 @@ function cancel(){
 }
 // Return to first page to choose another district
 function back(){
-	 window.location.replace("Welcome.jsp");
+	window.location.replace("Welcome.jsp?mode="+m);
 }
+function login(){
+	var test= window.location.href; // get current page url
+	var lastChar = test.substr(test.length -1); 
+	if(lastChar=="#"){
+		test = test.substring(0, test.length-12);
+	}
+	else{
+	 	test = test.substring(0, test.length-11);
+	}
+	if(mode=="admin"){
+		test+="genjcjernjrj";
+		window.location.replace(test);
+	}
+	else if(mode=="guest"){
+		window.location.replace('login.jsp');
+	}
+}
+
 //display map
 
 var map = new OpenLayers.Map('map');
+var state="<%=state%>";
 var wms;
 $("#submenu li").click(function() {
   var id = $(this).attr('value');
@@ -494,14 +648,33 @@ $("#submenu li").click(function() {
 	if (wms) {
      window.map.removeLayer(wms);
   }
+	var cql_filter="st_nm='"+state+ "'";
 	wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
-	    "http://localhost:8083/geoserver/wms", {layers: [id]}     );
+	    "http://localhost:8083/geoserver/wms", {layers: [id], 'CQL_Filter': cql_filter}    );
 	map.addLayer(wms);
 	map.zoomToMaxExtent();
-	
-document.getElementById("map").style.visibility = 'visible';
+	document.getElementById("firstmap").style.display = 'none';
+	document.getElementById("map").style.visibility = 'visible';
  
 });
+var map1 = new OpenLayers.Map('firstmap');
+var wms1;
+	
+var state1="<%=state%>";
+var cql_filter1="st_nm='"+state1+ "'";
+		wms1 = new OpenLayers.Layer.WMS( "OpenLayers WMS",
+	    "http://localhost:8083/geoserver/wms", {layers: 'india:india', 'CQL_Filter': cql_filter1}    );
+	map1.addLayer(wms1);
+	map1.zoomToMaxExtent();
+	
+document.getElementById("firstmap").style.visibility = 'visible';
+ 
+
+
+
+
+ 
+
 </script>
 </body>
 </html> 

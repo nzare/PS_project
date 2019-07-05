@@ -5,8 +5,12 @@
 <%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.ResultSetMetaData" %>
 <html>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <!-- Styling  -->
 <style>
 body{
@@ -78,10 +82,10 @@ text-align: center;
  font-size: 1.5em;
  color: #ff0000;
  position: absolute;
- font-weight: 900;
+ font-weight: 800;
  width: 100%;
  height: 100%;
- margin: 0;
+ margin-top: 20px;
  line-height: 50px;
  text-align: center;
  /* Starting position */
@@ -121,13 +125,19 @@ text-align: center;
 <title>Java CMS</title>
 </head>
 <body>
-<div class="my-container">
 
-<div class="welcome">
-<h5>Welcome to CMS. Select a district to continue...</h5>
-</div>
+
 <%
-//Connect to database postgresql
+String mode=request.getParameter("mode");
+if(mode==null){
+	mode="guest";
+}
+else if(mode.equals("ahjdeifirnf")){
+	mode="admin";
+}
+else{
+	mode="guest";
+}
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
 		
@@ -140,8 +150,32 @@ Connection conn=null;
 	pst= conn.prepareStatement(sql);
 	ResultSet rs= pst.executeQuery();
 	ResultSetMetaData meta = rs.getMetaData();
-	int colCount = meta.getColumnCount(); // get no of columns
+	int colCount = meta.getColumnCount(); 
+	String temp;
+	// get no of columns
 	%> 
+	<br>
+	<% if(mode.equals("guest")){%>
+	<div class="float-left" >
+	<button type="button" class="btn btn-secondary btn-sm" onclick="back_button()"><i class="fa fa-sign-in" aria-hidden="true"></i>Admin Sign In</button>
+	
+	</div>
+	<%} %>
+	<% if(mode.equals("admin")){%>
+	<div class="float-left" >
+	<button type="button" class="btn btn-secondary btn-sm" onclick="back_button()"><i class="fa fa-sign-out" aria-hidden="true"></i>Sign Out</button>
+	
+	</div>
+	<%} %>
+	<div class="float-right" >
+	<% out.println("Welcome " + mode);%>
+	
+	</div>
+	<div class="my-container">
+<br>
+<div class="welcome">
+<h5>Welcome to CMS. Select a state to continue...</h5>
+</div>
 	<br> <br>
 <center>
 	<div class="dropdown" style="margin-top:10%; width: 40%;">
@@ -149,11 +183,13 @@ Connection conn=null;
 <!-- Select district from dropdown -->
 
     <button style="width: 100%; font-family: "Lucida Console", Monaco, monospace;"><b><em>
-    Select District</em></b></button>
+    Select State</b></button>
 
     <ul class="dropdown-menu" id='myid'>
-    <%while(rs.next()){%>
-        <li id="<%rs.getString(2);%>"><a href="#"><b><em><%out.println(rs.getString(2));%></em></b></a></li>
+    <%while(rs.next()){
+    	temp=rs.getString(1);
+    %>
+        <li id="<%=temp%>"><a href="#"><b><em><%out.println(rs.getString(2));%></em></b></a></li>
 
            <%} %>
     </ul>
@@ -163,16 +199,42 @@ Connection conn=null;
 </center>
 
 <script>
+var m="<%=mode%>";
 $("#myid li").click(function() {
-   var v=$(this).text(); // get text contents of clicked li
-   if (window.confirm("You selected district: " + v +"Do you want to continue?")) { 
-	  window.location.replace("menu.jsp?name="+v);
+   var v=this.id; // get text contents of clicked li
+   var q=$(this).text();
+   if (window.confirm("You selected state: " + q +"Do you want to continue?")) { 
+	   if(m=="guest"){
+		   window.location.replace("menu.jsp?name="+v+"&&mode=genjcjernjrj");
+	   }
+	   else{
+		   window.location.replace("menu.jsp?name="+v+"&&mode=ahjdeifirnf");
+	   }
+	 	//window.location.replace("menu.jsp?name="+v);
 	  //reconfirmation window
 	  // Visit menus page only if user press Yes 
 	  // If user press No, it stays on the same page
 	}
   
 });
+
+function back_button(){
+	var test= window.location.href; // get current page url
+	var lastChar = test.substr(test.length -1); 
+	if(lastChar=="#"){
+		test = test.substring(0, test.length-12);
+	}
+	else{
+	 	test = test.substring(0, test.length-11);
+	}
+	if(m=="admin"){
+		test+="genjcjernjrj";
+		window.location.replace(test);
+	}
+	else if(m=="guest"){
+		window.location.replace('login.jsp');
+	}
+}
 </script>
 
  
