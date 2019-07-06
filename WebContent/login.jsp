@@ -10,12 +10,18 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
+
 <title>Login</title>
+
+<!-- Linking Bootstarp and JQuery -->
+
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 </head>
+
+<!-- Styling  -->
 <style>
 
 @import url('https://fonts.googleapis.com/css?family=Numans');
@@ -90,21 +96,29 @@ margin-left: 4px;
 }
 
 </style>
+
 	<title>Login Page</title>
  
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
  
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
+
 	<!--Custom styles-->
 	<link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
 <%
-	String user_name=request.getParameter("username");
+	//Get username and password
+	
+	String user_name=request.getParameter("username");  
 	String pass=request.getParameter("password");
-	String mode="guest";
+	
+	String mode="guest"; // Default mode is Guest Mode
+	
 	if(user_name!=null && pass !=null ){
+		//Connect to postgreSQL database
+		
 		Class.forName("org.postgresql.Driver");
 		Connection conn=null;
 				
@@ -112,15 +126,18 @@ margin-left: 4px;
 				String user ="postgres";
 				String password = "geoserver";
 				conn= DriverManager.getConnection(url,user,password);
-			PreparedStatement pst;
-			String sql = "SELECT count(*) FROM public.users where username=? and password=crypt(?,password)"; 
-			pst= conn.prepareStatement(sql);
-			pst.setString(1,user_name);
-			pst.setString(2, pass);
-			ResultSet rs= pst.executeQuery();
-			rs.next();
-        	int count=rs.getInt(1);
-			if(count==0){
+				
+				//Check for credentials 
+				
+				PreparedStatement pst;
+				String sql = "SELECT count(*) FROM public.users where username=? and password=crypt(?,password)"; 
+				pst= conn.prepareStatement(sql);
+				pst.setString(1,user_name);
+				pst.setString(2, pass);
+				ResultSet rs= pst.executeQuery();
+				rs.next();
+	        	int count=rs.getInt(1);
+				if(count==0){
 				%>
 				
 				<div class="d-flex justify-content-center " style="color:red;">
@@ -139,6 +156,8 @@ margin-left: 4px;
 	}
 
 %>
+<!-- Login  -->
+
 <div class="container">
 	<div class="d-flex justify-content-center h-100">
 		<div class="card">
@@ -179,6 +198,9 @@ margin-left: 4px;
 	</div>
 </div>
 <script>
+
+//If user press guest button
+
 function guestmode(){
 	window.location.replace("Welcome.jsp?mode=genjcjernjrj");
 }
