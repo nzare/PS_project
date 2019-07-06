@@ -4,13 +4,17 @@
 <%@page import="java.sql.Connection"%>
 <%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.ResultSetMetaData" %>
+
 <html>
+<!-- Linking various stylesheets ,fonts and Js -->
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <!-- Styling  -->
 <style>
 body{
@@ -128,9 +132,10 @@ text-align: center;
 
 
 <%
-String mode=request.getParameter("mode");
+String mode=request.getParameter("mode"); //Get mode from url of previous page redirect
+
 if(mode==null){
-	mode="guest";
+	mode="guest";  //Check if user tries to visit this page directly
 }
 else if(mode.equals("ahjdeifirnf")){
 	mode="admin";
@@ -138,6 +143,8 @@ else if(mode.equals("ahjdeifirnf")){
 else{
 	mode="guest";
 }
+// Connect with database
+
 Class.forName("org.postgresql.Driver");
 Connection conn=null;
 		
@@ -145,8 +152,9 @@ Connection conn=null;
 		String user ="postgres";
 		String password = "geoserver";
 		conn= DriverManager.getConnection(url,user,password);
+		
 	PreparedStatement pst;
-	String sql = "SELECT * FROM public.master "; // Select districts from master table postgresql
+	String sql = "SELECT * FROM public.master "; // Select states from master table postgresql
 	pst= conn.prepareStatement(sql);
 	ResultSet rs= pst.executeQuery();
 	ResultSetMetaData meta = rs.getMetaData();
@@ -155,32 +163,42 @@ Connection conn=null;
 	// get no of columns
 	%> 
 	<br>
+	<!-- If guest mode then give option to sign In -->
+	
 	<% if(mode.equals("guest")){%>
 	<div class="float-left" >
 	<button type="button" class="btn btn-secondary btn-sm" onclick="back_button()"><i class="fa fa-sign-in" aria-hidden="true"></i>Admin Sign In</button>
 	
 	</div>
-	<%} %>
-	<% if(mode.equals("admin")){%>
+	<%} 
+	
+	//If Admin mode then option to Sign Out 
+	
+	if(mode.equals("admin")){%>
 	<div class="float-left" >
 	<button type="button" class="btn btn-secondary btn-sm" onclick="back_button()"><i class="fa fa-sign-out" aria-hidden="true"></i>Sign Out</button>
 	
 	</div>
 	<%} %>
+	
+	<!-- Welcome guest/admin -->
+	
 	<div class="float-right" >
 	<% out.println("Welcome " + mode);%>
 	
 	</div>
 	<div class="my-container">
 <br>
+
 <div class="welcome">
 <h5>Welcome to CMS. Select a state to continue...</h5>
 </div>
 	<br> <br>
 <center>
+
 	<div class="dropdown" style="margin-top:10%; width: 40%;">
 	
-<!-- Select district from dropdown -->
+<!-- Select state from dropdown -->
 
     <button style="width: 100%; font-family: "Lucida Console", Monaco, monospace;"><b><em>
     Select State</b></button>
@@ -198,11 +216,13 @@ Connection conn=null;
 	
 </center>
 
+
 <script>
 var m="<%=mode%>";
 $("#myid li").click(function() {
    var v=this.id; // get text contents of clicked li
    var q=$(this).text();
+   
    if (window.confirm("You selected state: " + q +"Do you want to continue?")) { 
 	   if(m=="guest"){
 		   window.location.replace("menu.jsp?name="+v+"&&mode=genjcjernjrj");
@@ -210,13 +230,15 @@ $("#myid li").click(function() {
 	   else{
 		   window.location.replace("menu.jsp?name="+v+"&&mode=ahjdeifirnf");
 	   }
-	 	//window.location.replace("menu.jsp?name="+v);
 	  //reconfirmation window
 	  // Visit menus page only if user press Yes 
 	  // If user press No, it stays on the same page
+	  //Store information in url regarding state selected and mode
 	}
   
 });
+
+//To go back to login page
 
 function back_button(){
 	var test= window.location.href; // get current page url
