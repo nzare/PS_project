@@ -246,7 +246,8 @@ Connection conn=null;
 		PreparedStatement pst_first;
 		
 String state="";	
-
+String lon="";
+String lat="";
 if(name!=null){
 		String sql_first="select * from public.master where id= ? ";   //Select all departments of the state selected 
 		pst_first= conn.prepareStatement(sql_first);
@@ -254,6 +255,8 @@ if(name!=null){
 		ResultSet rs_first=pst_first.executeQuery();
 		while(rs_first.next()){
 			state=rs_first.getString(2);
+			lon=rs_first.getString(3);
+			lat=rs_first.getString(4);
 			%>
 			<div>
 			<!-- Heading -->
@@ -431,7 +434,7 @@ if(name!=null){
  
  <!-- Addition and deletion button for department only for admin mode -->
  <%if(mode.equals("admin")){ %>
- <div style="margin-left:80%; margin-bottom:2%;margin-top:4%;">
+ <div style="margin-left:85%; margin-bottom:2%;margin-top:4%;">
 	<div class="btn-group">
 	<br>
 	<br>
@@ -527,7 +530,15 @@ if(name!=null){
     	wms = new OpenLayers.Layer.WMS( "OpenLayers WMS",
     	    "http://localhost:8083/geoserver/wms", {layers: [id], 'CQL_Filter': cql_filter}    );
     	map.addLayer(wms);
-    	map.zoomToMaxExtent();
+    	map.addLayer(wms1);
+    	var lon="<%=lon%>";
+    	var lat="<%=lat%>";
+    	
+    	map.setCenter(new OpenLayers.LonLat(lon,lat).transform(
+    	        new OpenLayers.Projection([lon,lat], 'EPSG:7761'), map.getProjectionObject()
+    	  ), 6);
+
+    	//map.zoomToMaxExtent();
     	
     	//Hide the first map and display sub-department map
     	
@@ -734,17 +745,31 @@ function login(){
 //display map fo sub-department
 
 var map1 = new OpenLayers.Map('firstmap');
+
+ 
 var wms1;
 	
 var state1="<%=state%>";
 var cql_filter1="st_nm='"+state1+ "'";  //Apply CQL filter to get only this state
 		wms1 = new OpenLayers.Layer.WMS( "OpenLayers WMS",
-	    "http://localhost:8083/geoserver/wms", {layers: 'india:india', 'CQL_Filter': cql_filter1}    );
+	    "http://localhost:8083/geoserver/wms", {layers: 'india:india', 'CQL_Filter': cql_filter1,
+	        
+	        } );
+	        
 	map1.addLayer(wms1);
-	map1.zoomToMaxExtent();
+	var lon="<%=lon%>";
+	var lat="<%=lat%>";
 	
-document.getElementById("firstmap").style.visibility = 'visible';
-
+	map1.setCenter(new OpenLayers.LonLat(lon,lat).transform(
+	        new OpenLayers.Projection([lon,lat], 'EPSG:7761'), map1.getProjectionObject()
+	  ), 6);
+	
+	
+	//map1.zoomToMaxExtent();
+	//console.log(map1.getCenter());
+	document.getElementById("firstmap").style.display = 'visible';  
+	document.getElementById("map").style.visibility = 'none';
+ 	
 
 
 </script>
