@@ -36,18 +36,44 @@
 * PostGIS 2.0 ShapeFile and DBF file loader: For loading shape file *(.shp)* in PostGIS.
 
 ### Details of the project:
-* The first page that user sees is the **login page**. There are two options on login page: **admin** and **guest** mode. The admin needs to login with credentials to get admin rights whereas guest can continue.
+* The first page that user sees is the **login page**. There are two options on login page: **admin** and **guest** mode. The admin needs to login with credentials to get admin rights whereas guest can continue. 
+
+![Login](screenshots/login_page.png)
 
 * The next page is **Welcome page** providing user option to choose state/district to continue to next page. The page also has option to sign out for admin and sign in for guest.
+
+<p float="left">
+  <img src="screenshots/Welcome_admin.png" width="48%" />
+  <img src="screenshots/Welcome_guest.png" width="48%" /> 
+  
+</p>
 
 * The next page is **Menus page** which is the main page to display all maps. As soon as the page is loaded the map of district/state selected is displayed. This page also contains sign out option for admin mode and sign in option for guest mode and choose another state/district for both of them to change their selection.
 
 * The menus on this page contains various departments of the selected district/state and displays its sub-departments on mouse hover. The map of respective sub-department is displayed on selecting it.
 
+<p float="left">
+  <img src="screenshots/Menu_admin.png" width="48%" />
+  <img src="screenshots/Menu_guest.png" width="48%" /> 
+  
+</p>
+
+
 * The maps and menus/submenus are only displayed for the guest mode.
 
 * In admin mode the user has option to add/delete department which he wants to show in the menu. Further the user can also add/delete sub-department. For addition of department/sub-department user selects it from the drop down and enters name which will get displayed.
 For deletion of department/sub-department user just selects it from the dropdown. 
+
+<p float="left">
+  <img src="screenshots/Add_department.png" width="48%" />
+  <img src="screenshots/Add_sub-department.png" width="48%" /> 
+  
+</p>
+<p float="left">
+  <img src="screenshots/Delete_department.png" width="48%" />
+  <img src="screenshots/Delete_sub-department.png" width="48%" /> 
+  
+</p>
 
 ### Database Structure: 
 * Name of database used is **CMS**
@@ -62,17 +88,25 @@ For deletion of department/sub-department user just selects it from the dropdown
 ### Methodology:
 * For the admin login, some users have been created in *users* table of postgreSQL and password is encrypted by storing it using **pgcrypto**. Whenever a user enters credentials, **JDBC** connects to postreSQL database **CMS** and username is matched and password is decrypted and matched. If credentials are correct the user is send to next page otherwise error message of *Invalid Credentials* is displayed. On continuing with guest mode the user is just directed to next mode. The information of admin and guest is stored in url and send to next page.
 
+![Master](screenshots/users.png)
+
 * The mode is whether admin/guest is checked on the Welcome page and option to sign in/sign out is displayed accordingly. The sign in brings user back to login page and logout just changes mode from admin to guest.
 
 * Welcome page connects to postgreSQL database CMS through JDBC and displays drop down to select state/district from master's table. The selected district/state is passed to next page through url.
+
+![Master](screenshots/master.png)
 
 * The mode of user is checked again and also the state/district selected by the user. The database CMS is connected and the menu of department is displayed from the respective display table and sub-departments from the respective sub-departments table. 
 
 * A map of respective district/state is displayed on the page. The shape file for displaying map is loaded in PostgreSQL by **Import/Export shape file loader** and **PostGIS** process the data from shape file in form of table. In geoserver a layer and workspace is created for the map. There is an option to add stores in geoserver where data from PostGIS can be loaded. Thus a map is generated. The the map is created in OpenLayers in Javascript and **wms** layer from geoserver is added to it. 
 
+![Shape File](screenshots/shp_file.png)
+
 * The code for maps is same for displaying every sub-department or main main of state/district. The different maps are called based on the mapping from id.
 
 * The maps of department are of India but only part of them needs to be shown to user on basis of state/district he selected. This is done by using **CQL** . The respective state/district is passed as string and only part of map is displayed.
+
+![All Dept](screenshots/alldept.png)
 
 * On selecting any sub-department respective map is displayed.
 
